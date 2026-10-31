@@ -3,3 +3,10 @@ title: "week4"
 output: html_document
 ---
 
+# test
+
+library(usethis)
+library(sf)
+library(tidyverse)
+library(dyplr)
+library(tmap)
