@@ -3,14 +3,48 @@ title: "week4"
 output: html_document
 ---
 
-# test
-
+```{r}
 library(usethis)
 library(sf)
 library(tidyverse)
 library(dyplr)
 library(tmap)
+```
 
-#test
+install.packages("dplyr", type = "binary")
+library(dplyr)
 
-#test
+install.packages("dyplr")
+install.packages("countrycode")
+install.packages("remotes")
+
+library(countrycode)
+library(remotes)
+
+countrycode(
+  c("Canada", "Algeria"),
+  origin = "country.name",
+  destination = "iso3c"
+)
+
+remotes::install_github("vincentarelbundock/countrycode/r")
+
+HDR25 <- read.csv("/Users/geonhuilee/Desktop/UCL/CASA0005/Week 4/HDR25_Composite_indices_complete_time_series.csv")
+WORLD <- st_read("/Users/geonhuilee/Desktop/UCL/CASA0005/Week 4/World_Countries_(Generalized)_2173680399808997149.geojson")
+
+GII_subset <- HDR25%>% select(iso3, country, gii_2010, gii_2019)
+GII_diff <- GII_subset$gii_2019 - GII_subset$gii_2010
+GII_subset$gii_diff <- GII_diff
+rm(GII_diff)
+
+GII_subset$ISO <- countrycode(GII_subset$iso3, origin = "iso3c", destination = "iso2c")
+
+WORLD_GII <- WORLD %>% left_join(GII_subset, by = "ISO")
+
+plot(WORLD_GII)
+plot(WORLD_GII["gii_diff"])
+
+tmap_mode("plot")
+tm_shape(WORLD_GII) +
+  tm_polygons("gii_diff", 
+              palette = "Blues", title = "")
