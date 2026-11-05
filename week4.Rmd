@@ -36,14 +36,3 @@ GII_subset$ISO <- countrycode(GII_subset$iso3, origin = "iso3c", destination = "
 WORLD_GII <- WORLD %>% left_join(GII_subset, by = "ISO")
 ```
 
-#visualisation
-
-```{r}
-plot(WORLD_GII)
-plot(WORLD_GII["gii_diff"])
-
-tmap_mode("plot")
-tm_shape(WORLD_GII) +
-  tm_polygons("gii_diff", 
-              palette = "Blues", title = "")
-```
