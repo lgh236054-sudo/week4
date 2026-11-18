@@ -6,33 +6,32 @@ output: html_document
 #packages
 
 ```{r}
-library(usethis)
 library(sf)
 library(tidyverse)
-library(tmap)
 library(dplyr)
+library(janitor)
 library(countrycode)
-library(remotes)
-
-remotes::install_github("vincentarelbundock/countrycode/r")
-
 ```
 
 #read data
 
 ```{r}
-HDR25 <- read.csv("/Users/geonhuilee/Desktop/UCL/CASA0005/Week 4/HDR25_Composite_indices_complete_time_series.csv")
-WORLD <- st_read("/Users/geonhuilee/Desktop/UCL/CASA0005/Week 4/World_Countries_(Generalized)_2173680399808997149.geojson")
+HDR25 <- read_csv(here::here("HDR25_Composite_indices_complete_time_series.csv"))
+
+#could add skip=0, but we only need this code when we need to delete the 1st row.
+
+WORLD <- st_read(here::here("World_Countries_(Generalized)_2173680399808997149.geojson"))
 ```
 
-#subset data and join
+#subset and join data
 
 ```{r}
-GII_subset <- HDR25%>% select(iso3, country, gii_2010, gii_2019)
-GII_subset$gii_diff <- GII_diff
-
-GII_subset$ISO <- countrycode(GII_subset$iso3, origin = "iso3c", destination = "iso2c")
+GII_subset <- HDR25%>% 
+  clean_names()%>%
+  select(iso3, country, gii_2010, gii_2019)%>%
+  mutate(gii_diff = gii_2019 - gii_2010)%>%
+  filter(str_detect(iso3, "^ZZ", negate = TRUE))%>%
+  mutate(ISO = (countrycode(iso3, origin = "iso3c", destination = "iso2c")))
 
 WORLD_GII <- WORLD %>% left_join(GII_subset, by = "ISO")
 ```
-
